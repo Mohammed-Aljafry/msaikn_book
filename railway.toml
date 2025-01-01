@@ -4,7 +4,7 @@ buildCommand = "cd src && pip install --no-cache-dir -r requirements.txt"
 
 [deploy]
 startCommand = "cd src && python manage.py migrate && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p $PORT msakin.asgi:application"
-healthcheckPath = "/"
+healthcheckPath = "/healthcheck/"
 healthcheckTimeout = 300
 restartPolicy = "always"
 
