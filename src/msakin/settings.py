@@ -110,12 +110,14 @@ DATABASES = {
 # إعدادات التخزين المؤقت
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/1'),
     }
 }
 
 # إعدادات الجلسات
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1209600  # 14 days
 
 # التحقق من قوة كلمات المرور
 AUTH_PASSWORD_VALIDATORS = [
@@ -137,47 +139,54 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'ar'          # اللغة العربية
 TIME_ZONE = 'Asia/Riyadh'     # توقيت الرياض
 USE_I18N = True              # دعم الترجمة
+USE_L10N = True
 USE_TZ = True               # دعم المناطق الزمنية
+
+# إعدادات الأمان
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=True, cast=bool)
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# إعدادات CORS
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    'https://msakin-book.up.railway.app',
+]
+CSRF_TRUSTED_ORIGINS = [
+    'https://msakin-book.up.railway.app',
+]
 
 # إعدادات الملفات الثابتة
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # مجلد الملفات الثابتة المجمعة
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',    # مجلد الملفات الثابتة للتطوير
+    os.path.join(BASE_DIR, 'static'),
 ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# إعدادات ملفات الوسائط
+# إعدادات الوسائط
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'  # مجلد الوسائط المرفوعة
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # إعدادات Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# إعدادات الأمان
-SECURE_SSL_REDIRECT = True          # إجبار HTTPS
-SESSION_COOKIE_SECURE = True        # تأمين كوكيز الجلسة
-CSRF_COOKIE_SECURE = True          # تأمين كوكيز CSRF
-CSRF_TRUSTED_ORIGINS = [
-    # 'https://*.railway.app',
-    'https://msakin-book.up.railway.app'
-]
-SECURE_BROWSER_XSS_FILTER = True   # حماية XSS
-SECURE_CONTENT_TYPE_NOSNIFF = True # منع تخمين نوع المحتوى
-X_FRAME_OPTIONS = 'DENY'           # منع التضمين في إطارات
-SECURE_HSTS_SECONDS = 31536000    # مدة HSTS (سنة)
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # تطبيق HSTS على النطاقات الفرعية
-SECURE_HSTS_PRELOAD = True        # السماح بالتحميل المسبق
+# إعدادات المصادقة
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
 
-# إعدادات CORS
-CORS_ORIGIN_ALLOW_ALL = True  # في بيئة التطوير فقط
-CORS_ALLOW_CREDENTIALS = True
+# إعدادات البريد الإلكتروني
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@msakin-book.up.railway.app'
 
-# نوع المفتاح الرئيسي الافتراضي
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# إعدادات الملفات المرفوعة
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+FILE_UPLOAD_PERMISSIONS = 0o644
 
-# روابط تسجيل الدخول
-LOGIN_URL = 'login'  # صفحة تسجيل الدخول
-LOGIN_REDIRECT_URL = 'home:home'  # صفحة إعادة التوجيه بعد الدخول
-# LOGOUT_REDIRECT_URL = 'home:home'  # صفحة إعادة التوجيه بعد الخروج
+# إعدادات المستخدم الافتراضي
+AUTH_USER_MODEL = 'auth.User'
