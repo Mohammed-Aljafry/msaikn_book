@@ -38,8 +38,8 @@ class PropertyRequestAdmin(admin.ModelAdmin):
     """
     تخصيص عرض وإدارة طلبات العقارات في لوحة الإدارة
     """
-    list_display = ('user', 'property', 'status', 'created_at')
-    list_filter = ('status', 'created_at')
+    list_display = ('user', 'property', 'is_active', 'created_at')
+    list_filter = ('is_active', 'is_read', 'created_at')
     search_fields = ('user__username', 'property__title')
     readonly_fields = ('created_at',)
     date_hierarchy = 'created_at'
@@ -69,7 +69,7 @@ class MessageAdmin(admin.ModelAdmin):
     """
     تخصيص عرض وإدارة الرسائل في لوحة الإدارة
     """
-    list_display = ('user', 'chat', 'created_at')
-    list_filter = ('created_at',)
-    search_fields = ('user__username', 'content')
+    list_display = ('sender', 'chat', 'created_at')
+    list_filter = ('created_at', 'is_read')
+    search_fields = ('sender__username', 'content')
     readonly_fields = ('created_at',)
