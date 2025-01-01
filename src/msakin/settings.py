@@ -89,32 +89,22 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [config('REDIS_URL', default='redis://127.0.0.1:6379')],
+            "hosts": [config('REDIS_URL', default='redis://localhost:6379')],
         },
     }
 }
 
 # إعدادات قاعدة البيانات
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('PGDATABASE', default='railway'),
-        'USER': config('PGUSER', default='postgres'),
-        'PASSWORD': config('PGPASSWORD'),
-        'HOST': config('PGHOST', default='localhost'),
-        'PORT': config('PGPORT', default='5432'),
-        'OPTIONS': {
-            'sslmode': 'require',
-        }
-    }
+    'default': dj_database_url.config(
+        default='postgresql://postgres:postgres@localhost:5432/msakin',
+        conn_max_age=600,
+    )
 }
 
-if config('DATABASE_URL', default=None):
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True,
-        ssl_require=True
-    )
+# تأكد من أن SSL مطلوب في الإنتاج
+if not DEBUG:
+    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 
 # إعدادات التخزين المؤقت
 CACHES = {
