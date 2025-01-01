@@ -6,6 +6,7 @@ Django settings for msakin project.
 from pathlib import Path
 import os
 from decouple import config
+import dj_database_url
 
 # إعداد المسار الأساسي للمشروع
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -94,17 +95,41 @@ CHANNEL_LAYERS = {
 }
 
 # إعدادات قاعدة البيانات
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('PGDATABASE', default='postgres'),
-        'USER': config('PGUSER', default='postgres'),
-        'PASSWORD': config('PGPASSWORD', ''),
-        'HOST': config('PGHOST', default='localhost'),
-        'PORT': config('PGPORT', default='5432'),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('PGDATABASE'),
+#         'USER': config('PGUSER'),
+#         'PASSWORD': config('PGPASSWORD'),
+#         'HOST': config('PGHOST'),
+#         'PORT': config('PGPORT', default='5432'),
+#         'OPTIONS': {
+#             'sslmode': 'require',
+#         }
+#     }
+# }
 
+
+
+POSTGRES_LOCALLY=False
+if POSTGRES_LOCALLY:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('PGDATABASE'),
+            'USER': config('PGUSER'),
+            'PASSWORD': config('PGPASSWORD'),
+            'HOST': config('PGHOST'),
+            'PORT': config('PGPORT', default='5432'),
+            'OPTIONS': {
+                'sslmode': 'require',
+            }
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(default=config('DATABASE_URL'))
+    }
 # إعدادات التخزين المؤقت
 CACHES = {
     'default': {
