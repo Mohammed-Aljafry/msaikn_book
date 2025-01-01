@@ -3,11 +3,12 @@ builder = "nixpacks"
 buildCommand = "cd src && pip install -r requirements.txt"
 
 [deploy]
-startCommand = "cd src && python manage.py migrate && python manage.py collectstatic --noinput && daphne msakin.asgi:application --port $PORT --bind 0.0.0.0"
-healthcheckPath = "/admin/login/"
-healthcheckTimeout = 200
+startCommand = "cd src && python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput && daphne msakin.asgi:application --port $PORT --bind 0.0.0.0"
+healthcheckPath = "/"
+healthcheckTimeout = 300
 restartPolicy = "always"
 
 [env]
 PYTHON_VERSION = "3.11.7"
 NIXPACKS_PYTHON_VERSION = "3.11.7"
+DATABASE_URL = "postgresql://"

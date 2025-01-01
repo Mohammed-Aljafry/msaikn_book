@@ -99,11 +99,21 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('PGDATABASE', default='postgres'),
         'USER': config('PGUSER', default='postgres'),
-        'PASSWORD': config('PGPASSWORD', default=''),
+        'PASSWORD': config('PGPASSWORD', ''),
         'HOST': config('PGHOST', default='localhost'),
         'PORT': config('PGPORT', default='5432'),
     }
 }
+
+# إعدادات التخزين المؤقت
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+# إعدادات الجلسات
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # التحقق من قوة كلمات المرور
 AUTH_PASSWORD_VALIDATORS = [
