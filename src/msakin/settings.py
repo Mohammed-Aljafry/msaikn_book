@@ -96,16 +96,25 @@ CHANNEL_LAYERS = {
 
 # إعدادات قاعدة البيانات
 DATABASES = {
-    'default': dj_database_url.config(
-        default=config(
-            'DATABASE_URL',
-            default='postgresql://postgres:postgres@localhost:5432/msakin'
-        ),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('PGDATABASE', default='railway'),
+        'USER': config('PGUSER', default='postgres'),
+        'PASSWORD': config('PGPASSWORD'),
+        'HOST': config('PGHOST', default='localhost'),
+        'PORT': config('PGPORT', default='5432'),
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
+    }
+}
+
+if config('DATABASE_URL', default=None):
+    DATABASES['default'] = dj_database_url.config(
         conn_max_age=600,
         conn_health_checks=True,
         ssl_require=True
     )
-}
 
 # إعدادات التخزين المؤقت
 CACHES = {
