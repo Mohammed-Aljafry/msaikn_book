@@ -20,7 +20,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # المواقع المسموح لها بالوصول للتطبيق
-ALLOWED_HOSTS = ['*']  # سيتم تحديثه لاحقاً مع اسم موقعك
+ALLOWED_HOSTS = ['*', '.railway.app', '.up.railway.app']  # سيتم تحديثه لاحقاً مع اسم موقعك
 
 # تعريف التطبيقات المثبتة
 # Application definition
@@ -149,6 +149,7 @@ SESSION_COOKIE_SECURE = True        # تأمين كوكيز الجلسة
 CSRF_COOKIE_SECURE = True          # تأمين كوكيز CSRF
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
+    'https://*.up.railway.app'
 ]
 SECURE_BROWSER_XSS_FILTER = True   # حماية XSS
 SECURE_CONTENT_TYPE_NOSNIFF = True # منع تخمين نوع المحتوى
