@@ -3,12 +3,12 @@ builder = "nixpacks"
 buildCommand = "cd src && pip install --no-cache-dir -r requirements.txt"
 
 [deploy]
-startCommand = "cd src && python manage.py migrate && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p $PORT msakin.asgi:application"
+startCommand = "cd src && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:$PORT msakin.wsgi:application"
 healthcheckPath = "/healthcheck/"
-healthcheckTimeout = 300
+healthcheckTimeout = 100
 restartPolicy = "always"
 
 [env]
 PYTHON_VERSION = "3.11.7"
 NIXPACKS_PYTHON_VERSION = "3.11.7"
-DATABASE_URL = "postgresql://"
+DATABASE_URL = "postgresql://postgres:ooleBnnvqldMMRoPZRxCQkgEUPaUHXIo@postgres.railway.internal:5432/railway"
