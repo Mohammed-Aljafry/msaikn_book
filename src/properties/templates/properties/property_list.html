@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}قائمة العقارات{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- نموذج البحث -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">البحث عن العقارات</h5>
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="searchQuery" placeholder="ابحث عن عقار...">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="propertyType">
+                        <option value="">نوع العقار</option>
+                        <option value="apartment">شقة</option>
+                        <option value="villa">فيلا</option>
+                        <option value="land">أرض</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" id="minPrice" placeholder="السعر الأدنى">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" id="maxPrice" placeholder="السعر الأعلى">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">بحث</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- قائمة العقارات -->
+    <div class="row" id="propertiesList">
+        {% for property in properties %}
+        <div class="col-md-4 mb-4 property-card" data-property-id="{{ property.id }}">
+            <div class="card h-100">
+                {% if property.images.first %}
+                <img src="{{ property.images.first.image.url }}" class="card-img-top" alt="{{ property.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ property.title }}</h5>
+                    <p class="card-text">{{ property.description|truncatewords:20 }}</p>
+                    <p class="card-text">
+                        <strong>السعر:</strong> {{ property.price }} ريال
+                        <br>
+                        <strong>الموقع:</strong> {{ property.location }}
+                        <br>
+                        <strong>النوع:</strong> {{ property.get_property_type_display }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a href="{% url 'properties:property_detail' property.id %}" class="btn btn-sm btn-outline-primary">التفاصيل</a>
+                            <button class="btn btn-sm btn-outline-danger like-btn" data-property-id="{{ property.id }}">
+                                <i class="fas fa-heart"></i> <span class="likes-count">{{ property.likes.count }}</span>
+                            </button>
+                        </div>
+                        <small class="text-muted">{{ property.created_at|timesince }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- إضافة ملف WebSocket -->
+<script src="{% static 'js/websocket.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // تهيئة نموذج البحث
+        const searchForm = document.getElementById('searchForm');
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const searchData = {
+                query: document.getElementById('searchQuery').value,
+                type: document.getElementById('propertyType').value,
+                min_price: document.getElementById('minPrice').value,
+                max_price: document.getElementById('maxPrice').value
+            };
+            propertySocket.searchProperties(searchData);
+        });
+
+        // معالجة نتائج البحث
+        propertySocket.on('search_results', function(data) {
+            const propertiesList = document.getElementById('propertiesList');
+            propertiesList.innerHTML = ''; // مسح القائمة الحالية
+
+            data.properties.forEach(property => {
+                const propertyCard = createPropertyCard(property);
+                propertiesList.appendChild(propertyCard);
+            });
+        });
+
+        // معالجة أزرار الإعجاب
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const propertyId = this.dataset.propertyId;
+                propertySocket.likeProperty(propertyId);
+            });
+        });
+
+        // تحديث عدد الإعجابات
+        propertySocket.on('property_liked', function(data) {
+            const likeBtn = document.querySelector(`.like-btn[data-property-id="${data.property_id}"]`);
+            if (likeBtn) {
+                const likesCount = likeBtn.querySelector('.likes-count');
+                likesCount.textContent = data.likes_count;
+                if (data.liked) {
+                    likeBtn.classList.add('liked');
+                } else {
+                    likeBtn.classList.remove('liked');
+                }
+            }
+        });
+    });
+
+    // دالة إنشاء بطاقة عقار
+    function createPropertyCard(property) {
+        const card = document.createElement('div');
+        card.className = 'col-md-4 mb-4 property-card';
+        card.dataset.propertyId = property.id;
+
+        card.innerHTML = `
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">${property.title}</h5>
+                    <p class="card-text">${property.description}</p>
+                    <p class="card-text">
+                        <strong>السعر:</strong> ${property.price} ريال
+                        <br>
+                        <strong>الموقع:</strong> ${property.location}
+                        <br>
+                        <strong>النوع:</strong> ${property.property_type}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a href="/properties/${property.id}/" class="btn btn-sm btn-outline-primary">التفاصيل</a>
+                            <button class="btn btn-sm btn-outline-danger like-btn" data-property-id="${property.id}">
+                                <i class="fas fa-heart"></i> <span class="likes-count">0</span>
+                            </button>
+                        </div>
+                        <small class="text-muted">${property.created_at}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // إضافة معالج حدث للإعجاب
+        const likeBtn = card.querySelector('.like-btn');
+        likeBtn.addEventListener('click', function() {
+            propertySocket.likeProperty(property.id);
+        });
+
+        return card;
+    }
+</script>
+
+<style>
+    .like-btn.liked {
+        background-color: #dc3545;
+        color: white;
+    }
+    .property-card {
+        transition: transform 0.2s;
+    }
+    .property-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}

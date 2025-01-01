@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section bg-primary text-white py-5 text-center">
+    <div class="container">
+        <h1 class="display-4 mb-4">ابحث عن عقارك المثالي</h1>
+        <form method="GET" action="{% url 'home:home' %}" class="search-form">
+            <div class="input-group mb-3 w-75 mx-auto">
+                <input type="text" name="q" class="form-control form-control-lg" placeholder="ابحث عن موقع، نوع العقار، أو أي مواصفات..." value="{{ query|default:'' }}">
+                <button class="btn btn-secondary" type="submit">
+                    <i class="fas fa-search"></i> بحث
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Featured Properties Section -->
+<section class="featured-properties py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">العقارات المميزة</h2>
+        <div class="row">
+            {% for property in featured_properties %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if property.images.first %}
+                    <img src="{{ property.images.first.image.url }}" class="card-img-top" alt="{{ property.title }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <img src="{% static 'img/default-property.jpg' %}" class="card-img-top" alt="Default Property Image" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ property.title }}</h5>
+                        <p class="card-text text-muted">{{ property.location }}</p>
+                        <p class="card-text">
+                            <strong>السعر:</strong> {{ property.price }} ريال
+                            <br>
+                            <strong>النوع:</strong> {{ property.property_type }}
+                        </p>
+                        <a href="{% url 'properties:property_detail' property.pk %}" class="btn btn-primary">التفاصيل</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Latest Properties Section -->
+<section class="latest-properties py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">أحدث العقارات</h2>
+        {% if query %}
+        <h3 class="text-center mb-4">نتائج البحث عن: {{ query }}</h3>
+        {% endif %}
+        <div class="row">
+            {% for property in properties %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if property.images.first %}
+                    <img src="{{ property.images.first.image.url }}" class="card-img-top" alt="{{ property.title }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <img src="{% static 'img/default-property.jpg' %}" class="card-img-top" alt="Default Property Image" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ property.title }}</h5>
+                        <p class="card-text text-muted">{{ property.location }}</p>
+                        <p class="card-text">
+                            <strong>السعر:</strong> {{ property.price }} ريال
+                            <br>
+                            <strong>النوع:</strong> {{ property.property_type }}
+                        </p>
+                        <a href="{% url 'properties:property_detail' property.pk %}" class="btn btn-primary">التفاصيل</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="lead">لا توجد عقارات متاحة حالياً</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">مميزات منصتنا</h2>
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <div class="feature-item">
+                    <i class="fas fa-search fa-3x mb-3 text-primary"></i>
+                    <h4>بحث سهل وسريع</h4>
+                    <p>ابحث عن العقار المناسب بسهولة من خلال خيارات البحث المتقدمة</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-item">
+                    <i class="fas fa-home fa-3x mb-3 text-primary"></i>
+                    <h4>تنوع العقارات</h4>
+                    <p>اختر من بين مجموعة متنوعة من العقارات التي تناسب احتياجاتك</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-item">
+                    <i class="fas fa-comments fa-3x mb-3 text-primary"></i>
+                    <h4>تواصل مباشر</h4>
+                    <p>تواصل مباشرة مع أصحاب العقارات من خلال نظام المراسلة</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta py-5 bg-primary text-white text-center">
+    <div class="container">
+        <h2 class="mb-4">هل لديك عقار للبيع أو الإيجار؟</h2>
+        <p class="lead mb-4">انضم إلينا الآن وأضف عقارك بكل سهولة</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'properties:create_property' %}" class="btn btn-light btn-lg">أضف عقارك الآن</a>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg">سجل دخول لإضافة عقارك</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 123, 255, 0.9), rgba(0, 123, 255, 0.7)), url('{% static "img/hero-bg.jpg" %}') center/cover;
+        padding: 100px 0;
+    }
+    
+    .search-form .form-control {
+        border-radius: 30px 0 0 30px;
+    }
+    
+    .search-form .btn {
+        border-radius: 0 30px 30px 0;
+    }
+    
+    .feature-item {
+        padding: 20px;
+        border-radius: 10px;
+        transition: transform 0.3s;
+    }
+    
+    .feature-item:hover {
+        transform: translateY(-10px);
+    }
+    
+    .card {
+        transition: transform 0.3s;
+        border: none;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}

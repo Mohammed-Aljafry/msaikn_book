@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}حذف الطلب{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">تأكيد حذف الطلب</h4>
+                </div>
+                <div class="card-body">
+                    <p>هل أنت متأكد من أنك تريد حذف هذا الطلب؟</p>
+                    <p><strong>نوع العقار:</strong> {{ property_request.get_property_type_display }}</p>
+                    <p><strong>نوع القائمة:</strong> {{ property_request.get_listing_type_display }}</p>
+                    <p><strong>الموقع المفضل:</strong> {{ property_request.preferred_location }}</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">نعم، احذف الطلب</button>
+                        <a href="{% url 'properties:request_detail' pk=property_request.pk %}" class="btn btn-secondary">لا، عد للخلف</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

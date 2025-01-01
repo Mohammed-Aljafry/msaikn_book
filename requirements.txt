@@ -1,0 +1,11 @@
+Django==5.1.4
+channels==4.0.0
+daphne==4.1.2
+Pillow==11.0.0
+django-crispy-forms==2.3
+crispy-bootstrap5==2024.10
+python-decouple==3.8
+whitenoise==6.6.0
+django-allauth==65.3.1
+psycopg2-binary==2.9.9
+gunicorn==21.2.0

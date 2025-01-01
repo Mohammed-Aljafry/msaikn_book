@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}طلبات المعاينة{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">طلبات المعاينة</h4>
+                </div>
+                <div class="card-body">
+                    {% if requests %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>المستخدم</th>
+                                        <th>نوع العقار</th>
+                                        <th>نوع القائمة</th>
+                                        <th>الموقع المفضل</th>
+                                        <th>السعر الأقصى</th>
+                                        <th>المساحة الدنيا</th>
+                                        <th>عدد الغرف</th>
+                                        <th>تاريخ الطلب</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in requests %}
+                                        <tr>
+                                            <td>{{ request.user.username }}</td>
+                                            <td>{{ request.get_property_type_display }}</td>
+                                            <td>{{ request.get_listing_type_display }}</td>
+                                            <td>{{ request.preferred_location }}</td>
+                                            <td>{{ request.max_price }}</td>
+                                            <td>{{ request.min_area }}</td>
+                                            <td>{{ request.bedrooms|default:"-" }}</td>
+                                            <td>{{ request.created_at|date:"Y-m-d" }}</td>
+                                            <td>
+                                                <a href="{% url 'properties:request_detail' pk=request.pk %}" class="btn btn-sm btn-info">التفاصيل</a>
+                                                <a href="{% url 'properties:start_chat' username=request.user.username %}" class="btn btn-sm btn-success">تواصل</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            لا توجد طلبات معاينة حالياً.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
