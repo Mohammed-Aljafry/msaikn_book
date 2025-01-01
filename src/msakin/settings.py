@@ -95,41 +95,33 @@ CHANNEL_LAYERS = {
 }
 
 # إعدادات قاعدة البيانات
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('PGDATABASE'),
-#         'USER': config('PGUSER'),
-#         'PASSWORD': config('PGPASSWORD'),
-#         'HOST': config('PGHOST'),
-#         'PORT': config('PGPORT', default='5432'),
-#         'OPTIONS': {
-#             'sslmode': 'require',
-#         }
-#     }
-# }
+import dj_database_url
 
-
-
-POSTGRES_LOCALLY=False
-if POSTGRES_LOCALLY:
+# استخدام DATABASE_URL إذا كان متوفراً، وإلا استخدام الإعدادات المباشرة
+database_url = config('DATABASE_URL', default=None)
+if database_url:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('PGDATABASE'),
-            'USER': config('PGUSER'),
+            'NAME': config('PGDATABASE', default='railway'),
+            'USER': config('PGUSER', default='postgres'),
             'PASSWORD': config('PGPASSWORD'),
-            'HOST': config('PGHOST'),
+            'HOST': config('PGHOST', default='localhost'),
             'PORT': config('PGPORT', default='5432'),
             'OPTIONS': {
                 'sslmode': 'require',
             }
         }
     }
-else:
-    DATABASES = {
-        'default': dj_database_url.config(default=config('DATABASE_URL'))
-    }
+
 # إعدادات التخزين المؤقت
 CACHES = {
     'default': {
